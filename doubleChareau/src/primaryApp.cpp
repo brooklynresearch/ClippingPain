@@ -5,26 +5,30 @@ void primaryApp::setup(){
     
     ofSetFrameRate(30);
     
-    clippingPlaneMovie.load("movies/movie1.mov");
+    clippingPlaneMovie.load("movies/updated.mp4");
     clippingPlaneMovie.play();
-    clippingPlaneMovie.setPaused(true);
+    //clippingPlaneMovie.setPaused(true);
+    
+    numFrames = clippingPlaneMovie.getTotalNumFrames();
     
     server.setup(5020);
+    server.setVerbose(true);
 
 }
 
 //--------------------------------------------------------------
 void primaryApp::update(){
     
-    int currentFrame = clippingPlaneMovie.getCurrentFrame();
     
+    int currentFrame = clippingPlaneMovie.getCurrentFrame();
+    /*
     if (currentFrame == frameNumber) {
         clippingPlaneMovie.setPaused(true);
     } else if (currentFrame < frameNumber) {
         clippingPlaneMovie.nextFrame();
     } else if (currentFrame > frameNumber) {
         clippingPlaneMovie.previousFrame();
-    }
+    }*/
     
     clippingPlaneMovie.update();
     
@@ -43,7 +47,7 @@ void primaryApp::update(){
             cout << "Data: ";
             
             for (int c = 8; c <= (int)recv[5] + 8; c++) {
-                cout << (int)recv[c] << " ";
+                cout << (unsigned int)recv[c] << " ";
             }
             
             uint32_t value = (uint8_t)recv[13];
@@ -61,10 +65,13 @@ void primaryApp::update(){
             floatValue = *((float*)&value);
             cout << "FLOAT VALUE: " << floatValue << '\n';
             
-            frameNumber = (int)value;
-
-            server.sendRawMsg(i, recv, (int)recv[5] + 8);
+            float ratio = ofMap(floatValue, 0, 1000, 0, numFrames);
             
+            frameNumber = (int)ratio;
+            
+            char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
+
+            server.sendRawBytes(i, res, 12);
         }
     }
 }

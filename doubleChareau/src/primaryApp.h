@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxHAPAVPlayer.h"
+//#include "ofxHAPAVPlayer.h"
 #include "ofxTCPServer.h"
 
 class primaryApp : public ofBaseApp{
@@ -28,6 +28,8 @@ class primaryApp : public ofBaseApp{
         ofxTCPServer server;
         char recv[64];
     
+    
+        float numFrames;
         int frameNumber = 0;
 		
 };

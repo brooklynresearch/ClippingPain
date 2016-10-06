@@ -1,7 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
-#include "ofxHAPAVPlayer.h"
+//#include "ofxHAPAVPlayer.h"
 
 class secondaryApp : public ofBaseApp{
     
@@ -22,6 +22,7 @@ public:
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
     
-    ofxHAPAVPlayer vid;
-
+    //ofxHAPAVPlayer vid;
+    
+    ofVideoPlayer movie2;
 };

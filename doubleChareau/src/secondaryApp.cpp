@@ -3,21 +3,21 @@
 //--------------------------------------------------------------
 void secondaryApp::setup(){
     
-    vid.load("movies/moviehap2.mov");
-    vid.play();
+    movie2.load("movies/updated.mp4");
+    movie2.play();
 }
 
 //--------------------------------------------------------------
 void secondaryApp::update(){
     
-    vid.update();
+    movie2.update();
     
 }
 
 //--------------------------------------------------------------
 void secondaryApp::draw(){
     
-    vid.draw(0,0, 950, 712);
+    movie2.draw(0,0, 950, 712);
     
 }
 
