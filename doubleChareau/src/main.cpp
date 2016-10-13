@@ -1,25 +1,27 @@
 #include "ofMain.h"
-#include "primaryApp.h"
-#include "secondaryApp.h"
-
+#include "ofApp.h"
+#include "ofAppGLFWWindow.h"
 
 //========================================================================
 int main( ){
-    ofGLWindowSettings settings;
+
+    ofGLFWWindowSettings settings;
     settings.width = 950;
     settings.height = 712;
     settings.setPosition(ofVec2f(0,0));
-    auto mainWindow = ofCreateWindow(settings);
-    
+    shared_ptr<ofAppBaseWindow> frontWindow = ofCreateWindow(settings);
+
     settings.width = 950;
     settings.height = 712;
     settings.setPosition(ofVec2f(2000,0));
-    auto secondWindow = ofCreateWindow(settings);
-    
-    auto mainApp = make_shared<primaryApp>();
-    auto secondApp = make_shared<secondaryApp>();
-    
-    ofRunApp(secondWindow, secondApp);
-    ofRunApp(mainWindow, mainApp);
+    settings.shareContextWith = frontWindow;
+    shared_ptr<ofAppBaseWindow> rearWindow = ofCreateWindow(settings);
+
+    shared_ptr<ofApp> mainApp(new ofApp);
+
+    mainApp->setupRear();
+    ofAddListener(rearWindow->events().draw, mainApp.get(), &ofApp::drawRear);
+
+    ofRunApp(frontWindow, mainApp);
     ofRunMainLoop();
 }

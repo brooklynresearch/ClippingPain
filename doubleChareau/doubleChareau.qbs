@@ -15,15 +15,9 @@ Project{
             'src/main.cpp',
             'src/ofApp.cpp',
             'src/ofApp.h',
-            'src/primaryApp.cpp',
-            'src/primaryApp.h',
-            'src/secondaryApp.cpp',
-            'src/secondaryApp.h',
         ]
 
         of.addons: [
-            'ofxHAPAVPlayer',
-            'ofxModbusTCP',
             'ofxNetwork',
             'ofxOsc',
             'ofxXmlSettings',

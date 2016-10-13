@@ -1,15 +1,16 @@
 #pragma once
 
 #include "ofMain.h"
-//#include "ofxHAPAVPlayer.h"
 #include "ofxTCPServer.h"
 
-class primaryApp : public ofBaseApp{
+class ofApp : public ofBaseApp{
 
 	public:
 		void setup();
+    void setupRear();
 		void update();
 		void draw();
+    void drawRear(ofEventArgs &args);
 
 		void keyPressed(int key);
 		void keyReleased(int key);
@@ -22,14 +23,14 @@ class primaryApp : public ofBaseApp{
 		void windowResized(int w, int h);
 		void dragEvent(ofDragInfo dragInfo);
 		void gotMessage(ofMessage msg);
-    
-        ofVideoPlayer clippingPlaneMovie;
-    
-        ofxTCPServer server;
-        char recv[64];
-    
-    
-        float numFrames;
-        int frameNumber = 0;
-		
+
+    ofVideoPlayer frontMovie;
+    ofVideoPlayer rearMovie;
+
+    ofxTCPServer server;
+    char recv[64];
+
+    float numFrames;
+    int frameNumber = 0;
+
 };

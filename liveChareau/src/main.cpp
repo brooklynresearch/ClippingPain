@@ -24,5 +24,4 @@ int main( ){
 
 	ofRunApp(leftWindow, mainApp);
   ofRunMainLoop();
-
 }

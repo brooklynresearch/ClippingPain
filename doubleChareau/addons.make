@@ -1,5 +1,3 @@
-ofxHAPAVPlayer
-ofxModbusTCP
 ofxNetwork
 ofxOsc
 ofxXmlSettings

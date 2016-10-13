@@ -1,26 +1,33 @@
-#include "primaryApp.h"
+#include "ofApp.h"
 
 //--------------------------------------------------------------
-void primaryApp::setup(){
-    
+void ofApp::setup(){
+
     ofSetFrameRate(30);
-    
-    clippingPlaneMovie.load("movies/updated.mp4");
-    clippingPlaneMovie.play();
+
+    frontMovie.load("movies/newFront.mp4");
+    frontMovie.play();
     //clippingPlaneMovie.setPaused(true);
-    
-    numFrames = clippingPlaneMovie.getTotalNumFrames();
-    
+
+    numFrames = frontMovie.getTotalNumFrames();
+
     server.setup(5020);
     server.setVerbose(true);
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::update(){
-    
-    
-    int currentFrame = clippingPlaneMovie.getCurrentFrame();
+void ofApp::setupRear(){
+
+    rearMovie.load("movies/newRear.mp4");
+    rearMovie.play();
+
+}
+
+//--------------------------------------------------------------
+void ofApp::update(){
+
+    int currentFrame = frontMovie.getCurrentFrame();
     /*
     if (currentFrame == frameNumber) {
         clippingPlaneMovie.setPaused(true);
@@ -29,9 +36,10 @@ void primaryApp::update(){
     } else if (currentFrame > frameNumber) {
         clippingPlaneMovie.previousFrame();
     }*/
-    
-    clippingPlaneMovie.update();
-    
+
+    frontMovie.update();
+    rearMovie.update();
+
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
     {
         //cout << "CONNECTED: " << server.isClientConnected(i) << "\n";
@@ -45,11 +53,11 @@ void primaryApp::update(){
             cout << "Unit ID: " << (int)recv[6] << '\n';
             cout << "Function Code: " << (int)recv[7] << '\n';
             cout << "Data: ";
-            
+
             for (int c = 8; c <= (int)recv[5] + 8; c++) {
                 cout << (unsigned int)recv[c] << " ";
             }
-            
+
             uint32_t value = (uint8_t)recv[13];
             value <<= 8;
             value += (uint8_t)recv[14];
@@ -57,18 +65,18 @@ void primaryApp::update(){
             value += (uint8_t)recv[15];
             value <<= 8;
             value += (uint8_t)recv[16];
-            
+
             cout << '\n';
             cout << "BYTE VALUE: " << value << '\n';
             float floatValue;
             value = (float)value;
             floatValue = *((float*)&value);
             cout << "FLOAT VALUE: " << floatValue << '\n';
-            
+
             float ratio = ofMap(floatValue, 0, 1000, 0, numFrames);
-            
+
             frameNumber = (int)ratio;
-            
+
             char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
 
             server.sendRawBytes(i, res, 12);
@@ -77,63 +85,69 @@ void primaryApp::update(){
 }
 
 //--------------------------------------------------------------
-void primaryApp::draw(){
+void ofApp::draw(){
 
-    clippingPlaneMovie.draw(0,0, 950, 712);
-
-}
-
-//--------------------------------------------------------------
-void primaryApp::keyPressed(int key){
+    frontMovie.draw(0,0, 950, 712);
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::keyReleased(int key){
+void ofApp::drawRear(ofEventArgs &args){
+
+    rearMovie.draw(0,0, 950, 712);
+}
+
+//--------------------------------------------------------------
+void ofApp::keyPressed(int key){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::mouseMoved(int x, int y ){
+void ofApp::keyReleased(int key){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::mouseDragged(int x, int y, int button){
+void ofApp::mouseMoved(int x, int y ){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::mousePressed(int x, int y, int button){
+void ofApp::mouseDragged(int x, int y, int button){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::mouseReleased(int x, int y, int button){
+void ofApp::mousePressed(int x, int y, int button){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::mouseEntered(int x, int y){
+void ofApp::mouseReleased(int x, int y, int button){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::mouseExited(int x, int y){
+void ofApp::mouseEntered(int x, int y){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::windowResized(int w, int h){
+void ofApp::mouseExited(int x, int y){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::gotMessage(ofMessage msg){
+void ofApp::windowResized(int w, int h){
 
 }
 
 //--------------------------------------------------------------
-void primaryApp::dragEvent(ofDragInfo dragInfo){ 
+void ofApp::gotMessage(ofMessage msg){
+
+}
+
+//--------------------------------------------------------------
+void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
 }
