@@ -1,4 +1,5 @@
 #include "ofApp.h"
+#include <cstring>
 
 //--------------------------------------------------------------
 void ofApp::setup(){
@@ -7,7 +8,7 @@ void ofApp::setup(){
 
     frontMovie.load("movies/newFront.mp4");
     frontMovie.play();
-    //clippingPlaneMovie.setPaused(true);
+    frontMovie.setPaused(true);
 
     numFrames = frontMovie.getTotalNumFrames();
 
@@ -27,35 +28,34 @@ void ofApp::setupRear(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
-    int currentFrame = frontMovie.getCurrentFrame();
-    /*
-    if (currentFrame == frameNumber) {
-        clippingPlaneMovie.setPaused(true);
-    } else if (currentFrame < frameNumber) {
-        clippingPlaneMovie.nextFrame();
-    } else if (currentFrame > frameNumber) {
-        clippingPlaneMovie.previousFrame();
-    }*/
-
     frontMovie.update();
     rearMovie.update();
 
+    int currentFrame = frontMovie.getCurrentFrame();
+
+    if (currentFrame == frameNumber) {
+        frontMovie.setPaused(true);
+    } else if (currentFrame < frameNumber) {
+        frontMovie.nextFrame();
+    } else if (currentFrame > frameNumber) {
+        frontMovie.previousFrame();
+    }
+
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
     {
-        //cout << "CONNECTED: " << server.isClientConnected(i) << "\n";
         if( server.isClientConnected(i) ) { // check and see if it's still around
             // maybe the client is sending something
             server.receiveRawBytes(i, recv, 63);
             cout << "RECIEVED MODBUS: " << '\n';
-            cout << "Transaction ID: " << (unsigned int)recv[0] << " " << (unsigned int)recv[1] << '\n';
-            cout << "Protocol ID: " << (unsigned int)recv[2] << " " << (unsigned int)recv[3] << '\n';
+            cout << "Transaction ID: " << (int)recv[0] << " " << (int)recv[1] << '\n';
+            cout << "Protocol ID: " << (int)recv[2] << " " << (int)recv[3] << '\n';
             cout << "Length: " << (int)recv[4] << " " << (int)recv[5] << '\n';
             cout << "Unit ID: " << (int)recv[6] << '\n';
             cout << "Function Code: " << (int)recv[7] << '\n';
             cout << "Data: ";
 
-            for (int c = 8; c <= (int)recv[5] + 8; c++) {
-                cout << (unsigned int)recv[c] << " ";
+            for (int c = 8; c < MSG_LENGTH; c++) {
+                cout << (int)recv[c] << " ";
             }
 
             uint32_t value = (uint8_t)recv[13];
@@ -80,6 +80,8 @@ void ofApp::update(){
             char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
 
             server.sendRawBytes(i, res, 12);
+
+            memset(recv, 0, 64);
         }
     }
 }
@@ -151,3 +153,4 @@ void ofApp::gotMessage(ofMessage msg){
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
 }
+
