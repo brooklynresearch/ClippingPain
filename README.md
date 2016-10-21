@@ -6,4 +6,4 @@ Video Controller Application
 #### Update load() in setup in ofApp.cpp with filename
 #### Run
 
-#### In scripts folder run 'python3 chareauBytes.py <path/to/logfile>'
+#### In scripts folder run 'python3 chareauBytes.py \<path/to/logfile>'
