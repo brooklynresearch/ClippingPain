@@ -4,13 +4,15 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
+    ofSetVerticalSync(true);
     ofSetFrameRate(30);
 
-    frontMovie.load("movies/newFront.mp4");
+    frontMovie.load("movies/frontKeys.mp4");
     frontMovie.play();
     frontMovie.setPaused(true);
 
     numFrames = frontMovie.getTotalNumFrames();
+    cout << "Video Frames: " << numFrames << "\n\n";
 
     server.setup(5020);
     server.setVerbose(true);
@@ -28,19 +30,15 @@ void ofApp::setupRear(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
+    //frameNumber++;
+
     frontMovie.update();
     rearMovie.update();
 
-    int currentFrame = frontMovie.getCurrentFrame();
-
-    if (currentFrame == frameNumber) {
-        frontMovie.setPaused(true);
-    } else if (currentFrame < frameNumber) {
-        frontMovie.nextFrame();
-    } else if (currentFrame > frameNumber) {
-        frontMovie.previousFrame();
-    }
-
+    currentFrame = frontMovie.getCurrentFrame();
+    //cout << endl << "Frame: " << currentFrame << endl;
+/*
+    */
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
     {
         if( server.isClientConnected(i) ) { // check and see if it's still around
@@ -72,16 +70,18 @@ void ofApp::update(){
             value = (float)value;
             floatValue = *((float*)&value);
             cout << "FLOAT VALUE: " << floatValue << '\n';
+            cout << '\n';
 
             float ratio = ofMap(floatValue, 0, 1000, 0, numFrames);
 
+            pos = ofMap(floatValue, 0, 1060, 0, 1);
+            cout << "Position: " << pos << "%" << "\n\n";
+
             frameNumber = (int)ratio;
 
-            char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
+            //char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
 
-            server.sendRawBytes(i, res, 12);
-
-            memset(recv, 0, 64);
+            //server.sendRawBytes(i, res, 12);
         }
     }
 }
@@ -89,7 +89,18 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
+    if (currentFrame == frameNumber) {
+          frontMovie.setPaused(true);
+      } else if (currentFrame < frameNumber) {
+          frontMovie.nextFrame();
+      } else if (currentFrame > frameNumber) {
+          frontMovie.previousFrame();
+      }
+
+    //frontMovie.setPosition(pos);
     frontMovie.draw(0,0, 950, 712);
+    string frame = ofToString(currentFrame);
+    ofDrawBitmapString("Frame Number: " + frame, 10, 10);
 
 }
 

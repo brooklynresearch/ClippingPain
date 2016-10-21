@@ -19,7 +19,9 @@ with open(logfile,"rb") as f:
 
         client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         client.connect(serverAddr)
+        print(struct.unpack("!f",(readBytes[13:17])))
         client.sendall(message)
+        client.shutdown(socket.SHUT_RDWR)
         client.close()
         time.sleep(0.2) #5 Hz
         readBytes = f.read(33)

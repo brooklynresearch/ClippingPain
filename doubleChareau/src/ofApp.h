@@ -33,6 +33,10 @@ class ofApp : public ofBaseApp{
     float numFrames;
     int frameNumber = 0;
 
+    int currentFrame = 0;
+
     int MSG_LENGTH = 33;
+
+    float pos;
 };
 
