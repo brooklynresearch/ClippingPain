@@ -2,4 +2,5 @@
 *.swp
 *.mov
 *.mp4
+*.mjpeg
 .DS_Store
