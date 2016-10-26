@@ -7,10 +7,8 @@ class ofApp : public ofBaseApp{
 
   public:
     void setup();
-//    void setupRear();
     void update();
     void draw();
-//    void drawRear(ofEventArgs &args);
 
     void keyPressed(int key);
     void keyReleased(int key);

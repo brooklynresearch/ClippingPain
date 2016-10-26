@@ -35,15 +35,6 @@ void ofApp::setup(){
 }
 
 //--------------------------------------------------------------
-/*
-void ofApp::setupRear(){
-
-    rearMovie.load("movies/newRear.mp4");
-    rearMovie.play();
-
-}
-*/
-//--------------------------------------------------------------
 void ofApp::update(){
 
     //frameNumber++;
@@ -52,9 +43,16 @@ void ofApp::update(){
     rearMovie.update();
 
     currentFrame = frontMovie.getCurrentFrame();
+
+    if (currentFrame == frameNumber) {
+        frontMovie.setPaused(true);
+    } else if (currentFrame < frameNumber) {
+        frontMovie.nextFrame();
+    } else if (currentFrame > frameNumber) {
+        frontMovie.previousFrame();
+    }
     //cout << endl << "Frame: " << currentFrame << endl;
-/*
-    */
+
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
     {
         if( server.isClientConnected(i) ) { // check and see if it's still around
@@ -88,12 +86,13 @@ void ofApp::update(){
             cout << "FLOAT VALUE: " << floatValue << '\n';
             cout << '\n';
 
-            float ratio = ofMap(floatValue, 0, 1000, 0, numFrames);
+            float ratio = ofMap(floatValue, 0, 1060, 0, numFrames);
 
-            pos = ofMap(floatValue, 0, 1060, 0, 1);
-            cout << "Position: " << pos << "%" << "\n\n";
+            //pos = ofMap(floatValue, 0, 1060, 0, 1);
+            //cout << "Position: " << pos << "%" << "\n\n";
 
             frameNumber = (int)ratio;
+            cout << "Frame Number: " << frameNumber << "\n\n";
 
             //char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
 
@@ -105,28 +104,15 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    if (currentFrame == frameNumber) {
-          frontMovie.setPaused(true);
-      } else if (currentFrame < frameNumber) {
-          frontMovie.nextFrame();
-      } else if (currentFrame > frameNumber) {
-          frontMovie.previousFrame();
-      }
-
+    
     //frontMovie.setPosition(pos);
     frontMovie.draw(0,0, movieWidth, movieHeight);
-    rearMovie.draw(1920, 0, movieWidth, movieHeight);
+    rearMovie.draw(movieWidth, 0, movieWidth, movieHeight);
     string frame = ofToString(currentFrame);
     ofDrawBitmapString("Frame Number: " + frame, 50, 50);
 
 }
-/*
-//--------------------------------------------------------------
-void ofApp::drawRear(ofEventArgs &args){
 
-    rearMovie.draw(0,0, 950, 712);
-}
-*/
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 
