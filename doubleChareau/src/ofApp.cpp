@@ -5,11 +5,15 @@
 void ofApp::setup(){
 
     ofSetVerticalSync(true);
-    ofSetFrameRate(30);
+//    ofSetFrameRate(30);
 
-    frontMovie.load("movies/frontKeys.mp4");
+    frontMovie.load("movies/newFront.mp4");
     frontMovie.play();
     frontMovie.setPaused(true);
+
+    rearMovie.load("movies/newRear.mp4");
+    rearMovie.play();
+    rearMovie.setPaused(true);
 
     numFrames = frontMovie.getTotalNumFrames();
     cout << "Video Frames: " << numFrames << "\n\n";
@@ -20,13 +24,14 @@ void ofApp::setup(){
 }
 
 //--------------------------------------------------------------
+/*
 void ofApp::setupRear(){
 
     rearMovie.load("movies/newRear.mp4");
     rearMovie.play();
 
 }
-
+*/
 //--------------------------------------------------------------
 void ofApp::update(){
 
@@ -99,17 +104,18 @@ void ofApp::draw(){
 
     //frontMovie.setPosition(pos);
     frontMovie.draw(0,0, 950, 712);
+    rearMovie.draw(1920, 0, 950, 712);
     string frame = ofToString(currentFrame);
     ofDrawBitmapString("Frame Number: " + frame, 10, 10);
 
 }
-
+/*
 //--------------------------------------------------------------
 void ofApp::drawRear(ofEventArgs &args){
 
     rearMovie.draw(0,0, 950, 712);
 }
-
+*/
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
 

@@ -4,7 +4,7 @@
 
 //========================================================================
 int main( ){
-
+/*
     ofGLFWWindowSettings settings;
     settings.width = 950;
     settings.height = 712;
@@ -24,5 +24,11 @@ int main( ){
 
     ofRunApp(frontWindow, mainApp);
     ofRunMainLoop();
+*/
+
+  ofAppGLFWWindow window;
+  window.setMultiDisplayFullscreen(true);
+  ofSetupOpenGL(&window, 1920, 1080, OF_FULLSCREEN);
+  ofRunApp(new ofApp);
 }
 
