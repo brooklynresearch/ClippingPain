@@ -7,11 +7,22 @@ void ofApp::setup(){
     ofSetVerticalSync(true);
 //    ofSetFrameRate(30);
 
-    frontMovie.load("movies/newFront.mp4");
+    if (XML.load("settings.xml") ){
+      XML.setTo("moviefiles");
+      ofLog() << "XML loaded" << endl;
+    }
+
+    frontFile = XML.getValue("moviefile[@id=front]/filename");
+    rearFile = XML.getValue("moviefile[@id=rear]/filename");
+
+    movieWidth = stoi(XML.getValue("dimensions/width"));
+    movieHeight = stoi(XML.getValue("dimensions/height"));
+
+    frontMovie.load("movies/" + frontFile);
     frontMovie.play();
     frontMovie.setPaused(true);
 
-    rearMovie.load("movies/newRear.mp4");
+    rearMovie.load("movies/" + rearFile);
     rearMovie.play();
     rearMovie.setPaused(true);
 
@@ -103,10 +114,10 @@ void ofApp::draw(){
       }
 
     //frontMovie.setPosition(pos);
-    frontMovie.draw(0,0, 950, 712);
-    rearMovie.draw(1920, 0, 950, 712);
+    frontMovie.draw(0,0, movieWidth, movieHeight);
+    rearMovie.draw(1920, 0, movieWidth, movieHeight);
     string frame = ofToString(currentFrame);
-    ofDrawBitmapString("Frame Number: " + frame, 10, 10);
+    ofDrawBitmapString("Frame Number: " + frame, 50, 50);
 
 }
 /*

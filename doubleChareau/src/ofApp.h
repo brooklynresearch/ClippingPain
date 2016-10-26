@@ -24,8 +24,16 @@ class ofApp : public ofBaseApp{
     void dragEvent(ofDragInfo dragInfo);
     void gotMessage(ofMessage msg);
 
+    ofXml XML;
+
     ofVideoPlayer frontMovie;
     ofVideoPlayer rearMovie;
+
+    string frontFile;
+    string rearFile;
+
+    int movieWidth;
+    int movieHeight;
 
     ofxTCPServer server;
     char recv[64];
