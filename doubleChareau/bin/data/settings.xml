@@ -1,0 +1,16 @@
+<moviefiles>
+
+  <dimensions>
+    <width>1280</width>
+    <height>1024</height>
+  </dimensions>
+
+  <moviefile id="front">
+    <filename>newFront.mp4</filename>
+  </moviefile>
+
+  <moviefile id="rear">
+    <filename>newRear.mp4</filename>
+  </moviefile>
+
+</moviefiles>
