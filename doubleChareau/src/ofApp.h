@@ -25,7 +25,7 @@ class ofApp : public ofBaseApp{
     ofXml XML;
 
     ofVideoPlayer frontMovie;
-    ofVideoPlayer rearMovie;
+//    ofVideoPlayer rearMovie;
 
     string frontFile;
     string rearFile;
@@ -37,12 +37,14 @@ class ofApp : public ofBaseApp{
     char recv[64];
 
     float numFrames;
-    int frameNumber = 0;
+    int targetFrame = 0;
 
     int currentFrame = 0;
 
     int MSG_LENGTH = 33;
 
     float pos;
+
+    map<int, int> cues;
 };
 

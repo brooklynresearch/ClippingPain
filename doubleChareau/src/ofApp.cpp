@@ -5,7 +5,7 @@
 void ofApp::setup(){
 
     ofSetVerticalSync(true);
-//    ofSetFrameRate(30);
+    ofSetFrameRate(30);
 
     if (XML.load("settings.xml") ){
       XML.setTo("moviefiles");
@@ -18,13 +18,24 @@ void ofApp::setup(){
     movieWidth = stoi(XML.getValue("dimensions/width"));
     movieHeight = stoi(XML.getValue("dimensions/height"));
 
+    XML.setToSibling();
+    for (int i = 1; i < 34; i++) {
+      int cueNum = i;
+      int targetFrame = stoi(XML.getValue("cue[@id="+to_string(i)+"]/framenumber"));
+      cues.emplace(cueNum, targetFrame);
+    }
+
+    for(auto& item : cues) {
+      cout << "cue " << item.first << ": " << item.second << endl;
+    }
+
     frontMovie.load("movies/" + frontFile);
     frontMovie.play();
-    frontMovie.setPaused(true);
+    //frontMovie.setPaused(true);
 
-    rearMovie.load("movies/" + rearFile);
-    rearMovie.play();
-    rearMovie.setPaused(true);
+//    rearMovie.load("movies/" + rearFile);
+//    rearMovie.play();
+    //rearMovie.setPaused(true);
 
     numFrames = frontMovie.getTotalNumFrames();
     cout << "Video Frames: " << numFrames << "\n\n";
@@ -40,17 +51,10 @@ void ofApp::update(){
     //frameNumber++;
 
     frontMovie.update();
-    rearMovie.update();
+ //   rearMovie.update();
 
     currentFrame = frontMovie.getCurrentFrame();
 
-    if (currentFrame == frameNumber) {
-        frontMovie.setPaused(true);
-    } else if (currentFrame < frameNumber) {
-        frontMovie.nextFrame();
-    } else if (currentFrame > frameNumber) {
-        frontMovie.previousFrame();
-    }
     //cout << endl << "Frame: " << currentFrame << endl;
 
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
@@ -70,29 +74,34 @@ void ofApp::update(){
                 cout << (int)recv[c] << " ";
             }
 
-            uint32_t value = (uint8_t)recv[13];
-            value <<= 8;
-            value += (uint8_t)recv[14];
-            value <<= 8;
-            value += (uint8_t)recv[15];
-            value <<= 8;
-            value += (uint8_t)recv[16];
+            uint32_t cueNum = (uint8_t)recv[13];
+            cueNum <<= 8;
+            cueNum += (uint8_t)recv[14];
+            cueNum <<= 8;
+            cueNum += (uint8_t)recv[15];
+            cueNum <<= 8;
+            cueNum += (uint8_t)recv[16];
 
             cout << '\n';
-            cout << "BYTE VALUE: " << value << '\n';
-            float floatValue;
-            value = (float)value;
-            floatValue = *((float*)&value);
-            cout << "FLOAT VALUE: " << floatValue << '\n';
+            cout << "BYTE VALUE: " << hex << cueNum << '\n';
+            //float floatValue;
+            //value = (float)value;
+            //floatValue = *((float*)&value);
+            cout << "CUE VALUE: " << cueNum << '\n';
             cout << '\n';
 
-            float ratio = ofMap(floatValue, 0, 1060, 0, numFrames);
+            //float ratio = ofMap(floatValue, 0, 1060, 0, numFrames);
 
             //pos = ofMap(floatValue, 0, 1060, 0, 1);
             //cout << "Position: " << pos << "%" << "\n\n";
 
-            frameNumber = (int)ratio;
-            cout << "Frame Number: " << frameNumber << "\n\n";
+            int cue = cues.find(cueNum)->second;
+            if (cue == 0) {
+              targetFrame++;
+            } else if (cue > 0) {
+              targetFrame = cue;
+            }
+            cout << "Target Frame: " << targetFrame << "\n\n";
 
             //char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
 
@@ -104,12 +113,20 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
+    if (currentFrame == targetFrame) {
+        frontMovie.setPaused(true);
+    } else if (currentFrame < targetFrame) {
+        frontMovie.nextFrame();
+    } else if (currentFrame > targetFrame) {
+        frontMovie.previousFrame();
+    }
+
     
     //frontMovie.setPosition(pos);
     frontMovie.draw(0,0, movieWidth, movieHeight);
-    rearMovie.draw(movieWidth, 0, movieWidth, movieHeight);
+  //  rearMovie.draw(movieWidth, 0, movieWidth, movieHeight);
     string frame = ofToString(currentFrame);
-    ofDrawBitmapString("Frame Number: " + frame, 50, 50);
+    ofDrawBitmapString("Frame: " + frame, 50, 50);
 
 }
 
