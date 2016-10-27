@@ -37,10 +37,14 @@ class ofApp : public ofBaseApp{
     char recv[64];
 
     float numFrames;
+    float numFrames2;
     int frameNumber = 0;
-
+    int frameNumber2 = 0;
     int currentFrame = 0;
+    int currentFrame2 = 0;
 
+    int frameOffset;
+    
     int MSG_LENGTH = 33;
 
     float pos;

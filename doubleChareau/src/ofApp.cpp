@@ -5,7 +5,7 @@
 void ofApp::setup(){
 
     ofSetVerticalSync(true);
-//    ofSetFrameRate(30);
+    ofSetFrameRate(33);
 
     if (XML.load("settings.xml") ){
       XML.setTo("moviefiles");
@@ -20,15 +20,17 @@ void ofApp::setup(){
 
     frontMovie.load("movies/" + frontFile);
     frontMovie.play();
-    frontMovie.setPaused(true);
+    //frontMovie.setPaused(true);
 
-    rearMovie.load("movies/" + rearFile);
-    rearMovie.play();
-    rearMovie.setPaused(true);
+//    rearMovie.load("movies/" + rearFile);
+//    rearMovie.play();
+//    rearMovie.setPaused(true);
 
     numFrames = frontMovie.getTotalNumFrames();
     cout << "Video Frames: " << numFrames << "\n\n";
 
+    frameOffset = numFrames / 6;
+    
     server.setup(5020);
     server.setVerbose(true);
 
@@ -40,18 +42,11 @@ void ofApp::update(){
     //frameNumber++;
 
     frontMovie.update();
-    rearMovie.update();
+//    rearMovie.update();
 
     currentFrame = frontMovie.getCurrentFrame();
 
-    if (currentFrame == frameNumber) {
-        frontMovie.setPaused(true);
-    } else if (currentFrame < frameNumber) {
-        frontMovie.nextFrame();
-    } else if (currentFrame > frameNumber) {
-        frontMovie.previousFrame();
-    }
-    //cout << endl << "Frame: " << currentFrame << endl;
+        cout << endl << "frontMovie Frame: " << currentFrame << endl;
 
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
     {
@@ -86,23 +81,49 @@ void ofApp::update(){
             cout << "FLOAT VALUE: " << floatValue << '\n';
             cout << '\n';
 
-            float ratio = ofMap(floatValue, 0, 1060, 0, numFrames);
+            float ratio = ofMap(floatValue, 0, 1060, frameOffset, frameOffset*2);
 
+//            ratio = (numFrames / 6) + ratio;
             //pos = ofMap(floatValue, 0, 1060, 0, 1);
             //cout << "Position: " << pos << "%" << "\n\n";
 
-            frameNumber = (int)ratio;
+            if (ratio > 0){
+                frameNumber = (int)ratio;
+            }
+            else {
+                
+                cout << "WARNING INVALID FRAME NUMBER " << endl;
+            }
+            
             cout << "Frame Number: " << frameNumber << "\n\n";
 
             //char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
 
             //server.sendRawBytes(i, res, 12);
+            
+            //offset calc
+//            currentFrame += frameOffset;
+            frameNumber += frameOffset;
         }
     }
 }
 
 //--------------------------------------------------------------
 void ofApp::draw(){
+    string blank = "";
+    if (currentFrame == frameNumber) {
+        frontMovie.setPaused(true);
+        blank = "paused";
+//        rearMovie.setPaused(true);
+    } else if (currentFrame < frameNumber) {
+        blank = "next";
+        frontMovie.nextFrame();
+//        rearMovie.nextFrame();
+    } else if (currentFrame > frameNumber) {
+        blank = "prev";
+        frontMovie.previousFrame();
+//        rearMovie.previousFrame();
+    }
 
     
     //frontMovie.setPosition(pos);
@@ -110,12 +131,15 @@ void ofApp::draw(){
     rearMovie.draw(movieWidth, 0, movieWidth, movieHeight);
     string frame = ofToString(currentFrame);
     ofDrawBitmapString("Frame Number: " + frame, 50, 50);
-
+    ofDrawBitmapString("vidframe and intendedframe: " + ofToString(currentFrame) + " " + ofToString(frameNumber) + " " + blank, 150, 150);
+    
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if(key == 'r'){
+        frontMovie.setFrame(frameNumber);
+    }
 }
 
 //--------------------------------------------------------------

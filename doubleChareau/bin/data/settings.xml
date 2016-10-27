@@ -1,16 +1,16 @@
 <moviefiles>
 
   <dimensions>
-    <width>1344</width>
+    <width>2688</width>
     <height>1008</height>
   </dimensions>
 
   <moviefile id="front">
-    <filename>newFront.mp4</filename>
+    <filename>crfMerged.mp4</filename>
   </moviefile>
 
   <moviefile id="rear">
-    <filename>newRear.mp4</filename>
+    <filename></filename>
   </moviefile>
 
 </moviefiles>
