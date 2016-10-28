@@ -11,6 +11,10 @@ void ofApp::setup(){
       ofLog() << "XML loaded" << endl;
     }
 
+    PORT = 12345;
+    HOST = "192.168.3.209";
+    sender.setup(HOST, PORT);
+    
     frameRate = stoi(XML.getValue("framerate"));
     ofSetFrameRate(frameRate);
 
@@ -26,7 +30,7 @@ void ofApp::setup(){
     for (int i = 0; i < 34; i++) {
       int cueNum = i;
       int targetFrame = stoi(XML.getValue("cue[@id="+to_string(i)+"]/framenumber"));
-      timeIntervals.push_back(stoi(XML.getValue("cue[@id="+to_string(i)+"]/interval")) * 1000);
+      timeIntervals.push_back(stof(XML.getValue("cue[@id="+to_string(i)+"]/interval")) * 1000);
       cues.emplace(cueNum, targetFrame);
     }
 
@@ -44,6 +48,7 @@ void ofApp::setup(){
     frontMovie.load("movies/" + frontFile);
     frontMovie.play();
     frontMovie.setPaused(true);
+    frontMovie.setFrame(2);
 
     numFrames = frontMovie.getTotalNumFrames();
     cout << "Video Frames: " << numFrames << "\n\n";
@@ -96,12 +101,22 @@ void ofApp::update(){
             cout << "CUE VALUE: " << cueNum << '\n';
             cout << '\n';
 
-            if(prevCue == 33 && cueNum == 1){
-                frontMovie.setFrame(0);
-            }
-            
-            prevCue = cueNum;
-
+//            if(prevCue == 33 && cueNum == 1){
+//                frontMovie.setFrame(0);
+//            }
+//            
+//            if(prevCue != cueNum)
+//            {
+//                
+//                prevCue = cueNum;
+//                prevTarget = targetFrame;
+//                
+//                ofxOscMessage m;
+//                m.setAddress("/vid");
+//                m.addIntArg(triggerVids[cueNum]);
+//                
+//                sender.sendMessage(m);
+//            }
             // Ezer's test
             char recvByte[sizeof(float)];
 
@@ -115,14 +130,35 @@ void ofApp::update(){
             cueNum = (int)floatValue;
             
             cout << "Ezer's float value " << floatValue << endl;
+
+            
+            
+            if(prevCue != cueNum)
+            {
+                if(prevCue == 33 && cueNum == 1){
+                    frontMovie.setFrame(0);
+                }
+                
+                prevCue = cueNum;
+                prevTarget = targetFrame;
+                
+                ofxOscMessage m;
+                m.setAddress("/vid");
+                m.addIntArg(triggerVids[cueNum]);
+                
+                sender.sendMessage(m);
+            }
             
             if (cueNum != 0) {
                 int cue = cues.find(cueNum)->second;
                 if (cue > 0) {
-                    prevTarget = targetFrame;
+//                    prevTarget = targetFrame;
                     targetFrame = cue;
                     currentInterval = timeIntervals[cue];
-                    frameTicker = currentInterval / (targetFrame - prevTarget);
+                    if(targetFrame - prevTarget > 0)
+                    {
+                        frameTicker = currentInterval / (targetFrame - prevTarget);
+                    }
                 }
             }
             cout << "Target Frame: " << targetFrame << "\n\n";

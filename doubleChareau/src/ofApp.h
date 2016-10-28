@@ -2,6 +2,7 @@
 
 #include "ofMain.h"
 #include "ofxTCPServer.h"
+#include "ofxOsc.h"
 
 class ofApp : public ofBaseApp{
 
@@ -48,11 +49,16 @@ class ofApp : public ofBaseApp{
 
     vector<int> timeIntervals;
     map<int, int> cues;
-
+    vector<int> triggerVids {-1, -1, 1, -1, 2, -1, -1, 3, -1, -1, 4, -1, 5, -1, 6, -1, 7, -1,  8, -1,  9, -1, 10, -1, 11};
+    
     int currentTime;
     int currentInterval = 0;
     int frameTicker = 0;
 
+    ofxOscSender sender;
+    int PORT;
+    string HOST;
+    
     bool debug;
 };
 
