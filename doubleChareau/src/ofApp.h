@@ -25,7 +25,6 @@ class ofApp : public ofBaseApp{
     ofXml XML;
 
     ofVideoPlayer frontMovie;
-//    ofVideoPlayer rearMovie;
 
     string frontFile;
     string rearFile;
@@ -39,17 +38,21 @@ class ofApp : public ofBaseApp{
     int frameRate;
     float numFrames;
     int targetFrame = 0;
-
     int currentFrame = 0;
+    int prevTarget = 0;
+
     int totalCues = 34;
     int prevCue = 0;
     
     int MSG_LENGTH = 16;
 
-    float pos;
-
+    vector<int> timeIntervals;
     map<int, int> cues;
-    
+
+    int currentTime;
+    int currentInterval = 0;
+    int frameTicker = 0;
+
     bool debug;
 };
 

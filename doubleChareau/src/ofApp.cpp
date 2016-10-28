@@ -6,12 +6,11 @@ void ofApp::setup(){
 
     ofSetVerticalSync(true);
 
-
     if (XML.load("settings.xml") ){
       XML.setTo("moviefiles");
       ofLog() << "XML loaded" << endl;
     }
-    
+
     frameRate = stoi(XML.getValue("framerate"));
     ofSetFrameRate(frameRate);
 
@@ -27,20 +26,24 @@ void ofApp::setup(){
     for (int i = 0; i < 34; i++) {
       int cueNum = i;
       int targetFrame = stoi(XML.getValue("cue[@id="+to_string(i)+"]/framenumber"));
+      timeIntervals.push_back(stoi(XML.getValue("cue[@id="+to_string(i)+"]/interval")) * 1000);
       cues.emplace(cueNum, targetFrame);
     }
 
+    cout << "CUES" << endl;
     for(auto& item : cues) {
       cout << "cue " << item.first << ": " << item.second << endl;
+    }
+    cout << endl;
+
+    cout << "TIME INTERVALS" << endl;
+    for(auto& interval : timeIntervals) {
+      cout << to_string(interval) << endl;
     }
 
     frontMovie.load("movies/" + frontFile);
     frontMovie.play();
-    //frontMovie.setPaused(true);
-
-//    rearMovie.load("movies/" + rearFile);
-//    rearMovie.play();
-    //rearMovie.setPaused(true);
+    frontMovie.setPaused(true);
 
     numFrames = frontMovie.getTotalNumFrames();
     cout << "Video Frames: " << numFrames << "\n\n";
@@ -53,12 +56,10 @@ void ofApp::setup(){
 //--------------------------------------------------------------
 void ofApp::update(){
 
-    //frameNumber++;
-
     frontMovie.update();
- //   rearMovie.update();
 
     currentFrame = frontMovie.getCurrentFrame();
+    currentTime = ofGetElapsedTimeMillis();
 
     //cout << endl << "Frame: " << currentFrame << endl;
 
@@ -100,16 +101,10 @@ void ofApp::update(){
             }
             
             prevCue = cueNum;
-            
-            //float ratio = ofMap(floatValue, 0, 1060, 0, numFrames);
 
-            //pos = ofMap(floatValue, 0, 1060, 0, 1);
-            //cout << "Position: " << pos << "%" << "\n\n";
-
-            
             // Ezer's test
             char recvByte[sizeof(float)];
-            
+
             recvByte[0] = recv[16];
             recvByte[1] = recv[15];
             recvByte[2] = recv[14];
@@ -123,17 +118,15 @@ void ofApp::update(){
             
             if (cueNum != 0) {
                 int cue = cues.find(cueNum)->second;
-                if (cue == 0) {
-                    targetFrame++;
-                } else if (cue > 0) {
+                if (cue > 0) {
+                    prevTarget = targetFrame;
                     targetFrame = cue;
+                    currentInterval = timeIntervals[cue];
+                    frameTicker = currentInterval / (targetFrame - prevTarget);
                 }
             }
             cout << "Target Frame: " << targetFrame << "\n\n";
 
-            //char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
-
-            //server.sendRawBytes(i, res, 12);
         }
     }
 }
@@ -141,21 +134,29 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
+    if (currentTime >= frameTicker && currentFrame < targetFrame) {
+        frontMovie.nextFrame();
+        ofResetElapsedTimeCounter();
+    }
+
+  /*
     if (currentFrame == targetFrame) {
         frontMovie.setPaused(true);
     } else if (currentFrame < targetFrame) {
         frontMovie.nextFrame();
     } else if (currentFrame > targetFrame) {
         frontMovie.previousFrame();
-    }
+    }*/
 
     
     //frontMovie.setPosition(pos);
     frontMovie.draw(0,0, movieWidth, movieHeight);
-  //  rearMovie.draw(movieWidth, 0, movieWidth, movieHeight);
     string frame = ofToString(currentFrame);
     ofDrawBitmapString("Frame: " + frame, 50, 50);
+    ofDrawBitmapString("Target: " + to_string(targetFrame), 50, 75);
+    ofDrawBitmapString("Previous Target: " + to_string(prevTarget), 50, 100);
     ofDrawBitmapString("FrameRate: " + to_string(frameRate), 50, 150);
+    ofDrawBitmapString("Interval: " + to_string(currentInterval), 50, 200);
 
 }
 
