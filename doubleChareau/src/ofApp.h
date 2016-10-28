@@ -36,15 +36,20 @@ class ofApp : public ofBaseApp{
     ofxTCPServer server;
     char recv[64];
 
+    int frameRate;
     float numFrames;
     int targetFrame = 0;
 
     int currentFrame = 0;
-
-    int MSG_LENGTH = 33;
+    int totalCues = 34;
+    int prevCue = 0;
+    
+    int MSG_LENGTH = 16;
 
     float pos;
 
     map<int, int> cues;
+    
+    bool debug;
 };
 

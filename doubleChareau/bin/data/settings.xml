@@ -1,5 +1,6 @@
 <settings>
   <moviefiles>
+  	<framerate>23</framerate>
     <dimensions>
       <width>2688</width>
       <height>1008</height>
@@ -15,6 +16,10 @@
   </moviefiles>
 
   <cueSignals>
+  	<cue id="0"> <!-- to video 1 -->
+      <framenumber>0</framenumber>
+    </cue>
+
     <cue id="1"> <!-- to video 1 -->
       <framenumber>1177</framenumber>
     </cue>
@@ -32,7 +37,7 @@
     </cue>
 
     <cue id="5"> <!-- to endpoint 1 -->
-      <framenumber>0</framenumber>
+      <framenumber>2700</framenumber>
     </cue>
 
     <cue id="6">
@@ -56,7 +61,7 @@
     </cue>
 
     <cue id="11"> <!-- to endpoint 2-->
-      <framenumber>0</framenumber>
+      <framenumber>5400</framenumber>
     </cue>
 
     <cue id="12">
@@ -80,7 +85,7 @@
     </cue>
 
     <cue id="17"> <!-- to endpoint 3 -->
-      <framenumber>0</framenumber>
+      <framenumber>8100</framenumber>
     </cue>
 
     <cue id="18">
@@ -104,7 +109,7 @@
     </cue>
 
     <cue id="23"> <!-- to endpoint 4 -->
-      <framenumber>0</framenumber>
+      <framenumber>10800</framenumber>
     </cue>
 
     <cue id="24">
@@ -120,7 +125,7 @@
     </cue>
 
     <cue id="27"> <!-- to endpoint 5 -->
-      <framenumber>0</framenumber>
+      <framenumber>13500</framenumber>
     </cue>
 
      <cue id="28">

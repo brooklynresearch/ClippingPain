@@ -5,13 +5,18 @@
 void ofApp::setup(){
 
     ofSetVerticalSync(true);
-    ofSetFrameRate(30);
+
 
     if (XML.load("settings.xml") ){
       XML.setTo("moviefiles");
       ofLog() << "XML loaded" << endl;
     }
+    
+    frameRate = stoi(XML.getValue("framerate"));
+    ofSetFrameRate(frameRate);
 
+    ofHideCursor();
+    
     frontFile = XML.getValue("moviefile[@id=front]/filename");
     rearFile = XML.getValue("moviefile[@id=rear]/filename");
 
@@ -19,7 +24,7 @@ void ofApp::setup(){
     movieHeight = stoi(XML.getValue("dimensions/height"));
 
     XML.setToSibling();
-    for (int i = 1; i < 34; i++) {
+    for (int i = 0; i < 34; i++) {
       int cueNum = i;
       int targetFrame = stoi(XML.getValue("cue[@id="+to_string(i)+"]/framenumber"));
       cues.emplace(cueNum, targetFrame);
@@ -83,23 +88,46 @@ void ofApp::update(){
             cueNum += (uint8_t)recv[16];
 
             cout << '\n';
-            cout << "BYTE VALUE: " << hex << cueNum << '\n';
-            //float floatValue;
-            //value = (float)value;
-            //floatValue = *((float*)&value);
+            cout << "BYTE VALUE: " << (int)cueNum << '\n';
+            float floatValue;
+            cueNum = (float)cueNum;
+            floatValue = *((float*)&cueNum);
             cout << "CUE VALUE: " << cueNum << '\n';
             cout << '\n';
 
+            if(prevCue == 33 && cueNum == 1){
+                frontMovie.setFrame(0);
+            }
+            
+            prevCue = cueNum;
+            
             //float ratio = ofMap(floatValue, 0, 1060, 0, numFrames);
 
             //pos = ofMap(floatValue, 0, 1060, 0, 1);
             //cout << "Position: " << pos << "%" << "\n\n";
 
-            int cue = cues.find(cueNum)->second;
-            if (cue == 0) {
-              targetFrame++;
-            } else if (cue > 0) {
-              targetFrame = cue;
+            
+            // Ezer's test
+            char recvByte[sizeof(float)];
+            
+            recvByte[0] = recv[16];
+            recvByte[1] = recv[15];
+            recvByte[2] = recv[14];
+            recvByte[3] = recv[13];
+            
+            memcpy(&floatValue, recvByte, sizeof floatValue);
+            
+            cueNum = (int)floatValue;
+            
+            cout << "Ezer's float value " << floatValue << endl;
+            
+            if (cueNum != 0) {
+                int cue = cues.find(cueNum)->second;
+                if (cue == 0) {
+                    targetFrame++;
+                } else if (cue > 0) {
+                    targetFrame = cue;
+                }
             }
             cout << "Target Frame: " << targetFrame << "\n\n";
 
@@ -127,12 +155,26 @@ void ofApp::draw(){
   //  rearMovie.draw(movieWidth, 0, movieWidth, movieHeight);
     string frame = ofToString(currentFrame);
     ofDrawBitmapString("Frame: " + frame, 50, 50);
+    ofDrawBitmapString("FrameRate: " + to_string(frameRate), 50, 150);
 
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if(key == 'r'){
+        frontMovie.setFrame(targetFrame);
+    }
+    
+    else if(key == '-' || key == '_'){
+        --frameRate;
+        ofSetFrameRate(frameRate);
+    }
+    
+    else if(key == '=' || key == '+')
+    {
+        ++frameRate;
+        ofSetFrameRate(frameRate);
+    }
 }
 
 //--------------------------------------------------------------
