@@ -42,6 +42,11 @@ class ofApp : public ofBaseApp{
     int currentFrame = 0;
     int prevTarget = 0;
 
+    // timer variables
+    int currentTick;
+    int targetTick;
+    int elapsedMillisSinceCue;
+    
     int totalCues = 34;
     int prevCue = 0;
     
@@ -49,7 +54,41 @@ class ofApp : public ofBaseApp{
 
     vector<int> timeIntervals;
     map<int, int> cues;
-    vector<int> triggerVids {-1, -1, 1, -1, 2, -1, -1, 3, -1, -1, 4, -1, 5, -1, 6, -1, 7, -1,  8, -1,  9, -1, 10, -1, 11};
+    vector<int> triggerVids {-1,
+        -1,
+        1,
+        -1,
+        2,
+        -1,
+        -1,
+        -1,
+        3,
+        -1,
+        4,
+        -1,
+        -1,
+        -1,
+        5,
+        -1,
+        6,
+        -1,
+        -1,
+        -1,
+        7,
+        -1,
+        8,
+        -1,
+        -1,
+        -1,
+        9,
+        -1,
+        -1,
+        -1,
+        10,
+        -1,
+        11,
+        -1
+    };
     
     int currentTime;
     int currentInterval = 0;

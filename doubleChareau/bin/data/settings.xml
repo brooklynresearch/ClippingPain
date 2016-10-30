@@ -1,6 +1,6 @@
 <settings>
   <moviefiles>
-  	<framerate>30</framerate>
+  	<framerate>33</framerate>
     <dimensions>
       <width>2688</width>
       <height>1008</height>
@@ -27,8 +27,8 @@
     </cue>
 
     <cue id="2">
-      <framenumber>-1</framenumber>
-      <interval>1177</interval>
+      <framenumber>1177</framenumber>
+      <interval>0</interval>
     </cue>
 
     <cue id="3">  <!-- to video 2 -->
@@ -53,7 +53,7 @@
 
     <cue id="7"> <!-- to video 3 -->
       <framenumber>4170</framenumber>
-      <interval>100.76</interval>
+      <interval>61.00</interval>
     </cue>
 
     <cue id="8">
@@ -113,7 +113,7 @@
  
     <cue id="19"> <!-- to video 7 -->
       <framenumber>9827</framenumber>
-      <interval>111.92</interval>
+      <interval>71.92</interval>
     </cue>
 
     <cue id="20">
@@ -153,7 +153,7 @@
 
     <cue id="27"> <!-- to endpoint 5 -->
       <framenumber>13500</framenumber>
-      <interval>105.48</interval>
+      <interval>65.48</interval>
     </cue>
 
      <cue id="28">
@@ -163,7 +163,7 @@
 
     <cue id="29"> <!-- to video 10 -->
       <framenumber>15266</framenumber>
-      <interval>121.82</interval>
+      <interval>81.82</interval>
     </cue>
 
      <cue id="30">
@@ -184,6 +184,11 @@
     <cue id="33"> <!-- to end -->
       <framenumber>16200</framenumber>
       <interval>24.66</interval>
+    </cue>
+
+    <cue id="34">
+    	<framenumber>0</framenumber>
+    	<interval>0</interval>
     </cue>
 
   </cueSignals>

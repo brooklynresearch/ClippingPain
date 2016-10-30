@@ -15,9 +15,16 @@ void ofApp::setup(){
     HOST = "192.168.3.209";
     sender.setup(HOST, PORT);
     
+    debug = false;
+    
     frameRate = stoi(XML.getValue("framerate"));
     ofSetFrameRate(frameRate);
 
+    // frame timer variables
+    currentTick = 0;
+    targetTick = 0;
+    elapsedMillisSinceCue = 0;
+    
     ofHideCursor();
     
     frontFile = XML.getValue("moviefile[@id=front]/filename");
@@ -129,18 +136,43 @@ void ofApp::update(){
             
             cueNum = (int)floatValue;
             
-            cout << "Ezer's float value " << floatValue << endl;
+            cout << "Jaffer's memorial float value " << floatValue << endl;
 
             
             
             if(prevCue != cueNum)
             {
-                if(prevCue == 33 && cueNum == 1){
+                if((prevCue == 34) || cueNum == 0){
                     frontMovie.setFrame(0);
+                    prevTarget = 0;
+                    targetFrame = 0;
+                    currentFrame = frontMovie.getCurrentFrame();
+                    
+                    cout << "RESETTING RESETTING RESETTING" << endl;
                 }
                 
                 prevCue = cueNum;
                 prevTarget = targetFrame;
+                
+                if (cueNum != 0) {
+                    int cueFrame = cues.find(cueNum)->second;
+                    if (cueFrame >= 0) {
+                        targetFrame = cueFrame;
+                        currentInterval = timeIntervals[cueNum];
+                        if(targetFrame - prevTarget > 0)
+                        {
+                            frameTicker = currentInterval / (targetFrame - prevTarget);
+                        }
+                        else{
+                            frameTicker = 0;
+                        }
+                    }
+                }
+
+                // frame ticker var
+                
+                ofResetElapsedTimeCounter();
+                currentTick = 0;
                 
                 ofxOscMessage m;
                 m.setAddress("/vid");
@@ -149,18 +181,17 @@ void ofApp::update(){
                 sender.sendMessage(m);
             }
             
-            if (cueNum != 0) {
-                int cue = cues.find(cueNum)->second;
-                if (cue > 0) {
-//                    prevTarget = targetFrame;
-                    targetFrame = cue;
-                    currentInterval = timeIntervals[cue];
-                    if(targetFrame - prevTarget > 0)
-                    {
-                        frameTicker = currentInterval / (targetFrame - prevTarget);
-                    }
-                }
-            }
+//            if (cueNum != 0) {
+//                int cueFrame = cues.find(cueNum)->second;
+//                if (cueFrame >= 0) {
+//                    targetFrame = cueFrame;
+//                    currentInterval = timeIntervals[cueNum];
+//                    if(targetFrame - prevTarget > 0)
+//                    {
+//                        frameTicker = (int)((float)currentInterval / (float)(targetFrame - prevTarget));
+//                    }
+//                }
+//            }
             cout << "Target Frame: " << targetFrame << "\n\n";
 
         }
@@ -170,11 +201,19 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    if (currentTime >= frameTicker && currentFrame < targetFrame) {
-        frontMovie.nextFrame();
-        ofResetElapsedTimeCounter();
+//    if (currentTime >= frameTicker && currentFrame < targetFrame) {
+//        frontMovie.nextFrame();
+////        ofResetElapsedTimeCounter();
+//    }
+    if(frameTicker != 0)
+    {
+        if (currentTick < ofGetElapsedTimeMillis() / frameTicker
+            && currentFrame < targetFrame)
+        {
+            frontMovie.nextFrame();
+            ++currentTick;
+        }
     }
-
   /*
     if (currentFrame == targetFrame) {
         frontMovie.setPaused(true);
@@ -187,13 +226,28 @@ void ofApp::draw(){
     
     //frontMovie.setPosition(pos);
     frontMovie.draw(0,0, movieWidth, movieHeight);
-    string frame = ofToString(currentFrame);
-    ofDrawBitmapString("Frame: " + frame, 50, 50);
-    ofDrawBitmapString("Target: " + to_string(targetFrame), 50, 75);
-    ofDrawBitmapString("Previous Target: " + to_string(prevTarget), 50, 100);
-    ofDrawBitmapString("FrameRate: " + to_string(frameRate), 50, 150);
-    ofDrawBitmapString("Interval: " + to_string(currentInterval), 50, 200);
-
+    
+    if(debug)
+    {
+        string frame = ofToString(currentFrame);
+        ofDrawBitmapString("Frame: " + frame, 50, 50);
+        ofDrawBitmapString("Target: " + to_string(targetFrame), 50, 75);
+        ofDrawBitmapString("Previous Target: " + to_string(prevTarget), 50, 100);
+        ofDrawBitmapString("FrameRate: " + to_string(frameRate), 50, 150);
+        ofDrawBitmapString("Interval: " + to_string(currentInterval), 50, 200);
+        ofDrawBitmapString("frameTicker: " + to_string(frameTicker), 50, 250);
+        ofDrawBitmapString("currenTime: " + to_string(currentTime), 50, 300);
+        ofDrawBitmapString("current tick: " + to_string(currentTick), 50, 350);
+        
+        if (frameTicker != 0)
+        {
+            ofDrawBitmapString("target tick: " + to_string(ofGetElapsedTimeMillis() / frameTicker), 50, 400);
+        }
+        else {
+            ofDrawBitmapString("target tick: " + to_string(0), 50, 400);
+        }
+    }
+        
 }
 
 //--------------------------------------------------------------
@@ -211,6 +265,11 @@ void ofApp::keyPressed(int key){
     {
         ++frameRate;
         ofSetFrameRate(frameRate);
+    }
+    
+    else if (key == 'd' || key == 'D')
+    {
+        debug = !debug;
     }
 }
 
