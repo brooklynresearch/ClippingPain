@@ -27,6 +27,8 @@ void ofApp::setup(){
     
     ofHideCursor();
     
+    CGDisplayHideCursor(NULL);
+    
     frontFile = XML.getValue("moviefile[@id=front]/filename");
     rearFile = XML.getValue("moviefile[@id=rear]/filename");
 
@@ -55,7 +57,7 @@ void ofApp::setup(){
     frontMovie.load("movies/" + frontFile);
     frontMovie.play();
     frontMovie.setPaused(true);
-    frontMovie.setFrame(2);
+    frontMovie.setPosition(0);
 
     numFrames = frontMovie.getTotalNumFrames();
     cout << "Video Frames: " << numFrames << "\n\n";
@@ -75,6 +77,17 @@ void ofApp::update(){
 
     //cout << endl << "Frame: " << currentFrame << endl;
 
+    if(!frontMovie.isLoaded()){
+        frontMovie.load("movies/" + frontFile);
+        frontMovie.play();
+        frontMovie.setPaused(true);
+        frontMovie.setPosition(0);
+        
+        numFrames = frontMovie.getTotalNumFrames();
+        
+        cout << "RELOADED" << endl;
+    }
+    
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
     {
         if( server.isClientConnected(i) ) { // check and see if it's still around
@@ -136,51 +149,56 @@ void ofApp::update(){
             
             cueNum = (int)floatValue;
             
-            cout << "Jaffer's memorial float value " << floatValue << endl;
+            cout << "floatValue: " << floatValue << " cueNum: " << cueNum << endl;
 
-            
-            
-            if(prevCue != cueNum)
+            if(cueNum >= 0 && cueNum <= 34)
             {
-                if((prevCue == 34) || cueNum == 0){
-                    frontMovie.setFrame(0);
-                    prevTarget = 0;
-                    targetFrame = 0;
-                    currentFrame = frontMovie.getCurrentFrame();
+                if(prevCue != cueNum)
+                {
+                    if((prevCue == 34) || cueNum == 0){
+    //                    frontMovie.setFrame(0);
+                        frontMovie.setPosition(0);
+                        prevTarget = 0;
+                        targetFrame = 0;
+                        currentFrame = frontMovie.getCurrentFrame();
+                        
+                        cout << "RESETTING RESETTING RESETTING" << endl;
+                    }
                     
-                    cout << "RESETTING RESETTING RESETTING" << endl;
-                }
-                
-                prevCue = cueNum;
-                prevTarget = targetFrame;
-                
-                if (cueNum != 0) {
-                    int cueFrame = cues.find(cueNum)->second;
-                    if (cueFrame >= 0) {
-                        targetFrame = cueFrame;
-                        currentInterval = timeIntervals[cueNum];
-                        if(targetFrame - prevTarget > 0)
-                        {
-                            frameTicker = currentInterval / (targetFrame - prevTarget);
-                        }
-                        else{
-                            frameTicker = 0;
+                    prevCue = cueNum;
+                    prevTarget = targetFrame;
+                    
+                    if (cueNum != 0) {
+                        int cueFrame = cues.find(cueNum)->second;
+                        if (cueFrame >= 0) {
+                            targetFrame = cueFrame;
+                            currentInterval = timeIntervals[cueNum];
+                            if(targetFrame - prevTarget > 0)
+                            {
+                                frameTicker = currentInterval / (targetFrame - prevTarget);
+                            }
+                            else{
+                                frameTicker = 0;
+                            }
                         }
                     }
-                }
 
-                // frame ticker var
-                
-                ofResetElapsedTimeCounter();
-                currentTick = 0;
-                
-                ofxOscMessage m;
-                m.setAddress("/vid");
-                m.addIntArg(triggerVids[cueNum]);
-                
-                sender.sendMessage(m);
+                    // frame ticker var
+                    
+                    ofResetElapsedTimeCounter();
+                    currentTick = 0;
+                    
+                    ofxOscMessage m;
+                    m.setAddress("/vid");
+                    m.addIntArg(triggerVids[cueNum]);
+                    
+                    sender.sendMessage(m);
+                }
             }
             
+            else {
+                cout << " bad floatValue: " << floatValue << endl;
+            }
 //            if (cueNum != 0) {
 //                int cueFrame = cues.find(cueNum)->second;
 //                if (cueFrame >= 0) {
@@ -246,6 +264,8 @@ void ofApp::draw(){
         else {
             ofDrawBitmapString("target tick: " + to_string(0), 50, 400);
         }
+        
+        ofDrawBitmapString("current cue: " + to_string(prevCue), 50, 450);
     }
         
 }
