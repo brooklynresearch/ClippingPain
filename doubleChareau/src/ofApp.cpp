@@ -15,7 +15,7 @@ void ofApp::setup(){
     HOST = "192.168.3.209";
     sender.setup(HOST, PORT);
     
-    debug = false;
+    debug = true;
     
     frameRate = stoi(XML.getValue("framerate"));
     ofSetFrameRate(frameRate);
@@ -36,7 +36,7 @@ void ofApp::setup(){
     movieHeight = stoi(XML.getValue("dimensions/height"));
 
     XML.setToSibling();
-    for (int i = 0; i < 34; i++) {
+    for (int i = 0; i <= 34; i++) {
       int cueNum = i;
       int targetFrame = stoi(XML.getValue("cue[@id="+to_string(i)+"]/framenumber"));
       timeIntervals.push_back(stof(XML.getValue("cue[@id="+to_string(i)+"]/interval")) * 1000);
@@ -57,7 +57,8 @@ void ofApp::setup(){
     frontMovie.load("movies/" + frontFile);
     frontMovie.play();
     frontMovie.setPaused(true);
-    frontMovie.setPosition(0);
+    frontMovie.setFrame(3);
+//    frontMovie.setPosition(0);
 
     numFrames = frontMovie.getTotalNumFrames();
     cout << "Video Frames: " << numFrames << "\n\n";
@@ -75,6 +76,17 @@ void ofApp::update(){
     currentFrame = frontMovie.getCurrentFrame();
     currentTime = ofGetElapsedTimeMillis();
 
+    if (currentFrame < 0 || currentFrame > 20000){
+        cout << "bad frame" << endl;
+//        frontMovie.close();
+//        frontMovie.load("movies/" + frontFile);
+//        frontMovie.play();
+//        frontMovie.setPaused(true);
+        frontMovie.setFrame(3);
+        currentFrame = frontMovie.getCurrentFrame();
+        cout << "reloaded now with currentFrame: " << currentFrame << endl;
+    }
+    
     //cout << endl << "Frame: " << currentFrame << endl;
 
     if(!frontMovie.isLoaded()){
@@ -198,6 +210,7 @@ void ofApp::update(){
             
             else {
                 cout << " bad floatValue: " << floatValue << endl;
+                cueNum = prevCue;
             }
 //            if (cueNum != 0) {
 //                int cueFrame = cues.find(cueNum)->second;
@@ -231,6 +244,12 @@ void ofApp::draw(){
             frontMovie.nextFrame();
             ++currentTick;
         }
+    }
+    else{
+        if (currentFrame < targetFrame){
+            frontMovie.nextFrame();
+        }
+        
     }
   /*
     if (currentFrame == targetFrame) {

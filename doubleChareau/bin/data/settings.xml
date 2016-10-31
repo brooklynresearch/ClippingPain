@@ -133,7 +133,7 @@
 
     <cue id="23"> <!-- to endpoint 4 -->
       <framenumber>10800</framenumber>
-      <interval>20.37</interval>
+      <interval>20.97</interval>
     </cue>
 
     <cue id="24">
@@ -173,7 +173,7 @@
 
     <cue id="31"> <!-- to video 11 -->
       <framenumber>15306</framenumber>
-      <interval>1.98</interval>
+      <interval>1.58</interval>
     </cue>
 
      <cue id="32">
