@@ -55,6 +55,7 @@ void ofApp::setup(){
     }
 
     frontMovie.load("movies/" + frontFile);
+
     frontMovie.play();
     frontMovie.setPaused(true);
     frontMovie.setFrame(3);
@@ -360,5 +361,9 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+void ofApp::exit(){
+    frontMovie.closeMovie();
 }
 
