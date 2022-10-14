@@ -4,13 +4,65 @@
 //--------------------------------------------------------------
 void ofApp::setup(){
 
-    ofSetFrameRate(30);
+    ofSetVerticalSync(true);
 
-    frontMovie.load("movies/newFront.mp4");
+    if (XML.load("settings.xml") ){
+      XML.setTo("moviefiles");
+      ofLog() << "XML loaded" << endl;
+    }
+
+    PORT = 12345;
+    HOST = "192.168.3.209";
+    sender.setup(HOST, PORT);
+    
+    debug = true;
+    
+    frameRate = stoi(XML.getValue("framerate"));
+    ofSetFrameRate(frameRate);
+
+    // frame timer variables
+    currentTick = 0;
+    targetTick = 0;
+    elapsedMillisSinceCue = 0;
+    
+    ofHideCursor();
+    
+    CGDisplayHideCursor(NULL);
+    
+    frontFile = XML.getValue("moviefile[@id=front]/filename");
+    rearFile = XML.getValue("moviefile[@id=rear]/filename");
+
+    movieWidth = stoi(XML.getValue("dimensions/width"));
+    movieHeight = stoi(XML.getValue("dimensions/height"));
+
+    XML.setToSibling();
+    for (int i = 0; i <= 34; i++) {
+      int cueNum = i;
+      int targetFrame = stoi(XML.getValue("cue[@id="+to_string(i)+"]/framenumber"));
+      timeIntervals.push_back(stof(XML.getValue("cue[@id="+to_string(i)+"]/interval")) * 1000);
+      cues.emplace(cueNum, targetFrame);
+    }
+
+    cout << "CUES" << endl;
+    for(auto& item : cues) {
+      cout << "cue " << item.first << ": " << item.second << endl;
+    }
+    cout << endl;
+
+    cout << "TIME INTERVALS" << endl;
+    for(auto& interval : timeIntervals) {
+      cout << to_string(interval) << endl;
+    }
+
+    frontMovie.load("movies/" + frontFile);
+
     frontMovie.play();
     frontMovie.setPaused(true);
+    frontMovie.setFrame(3);
+//    frontMovie.setPosition(0);
 
     numFrames = frontMovie.getTotalNumFrames();
+    cout << "Video Frames: " << numFrames << "\n\n";
 
     server.setup(5020);
     server.setVerbose(true);
@@ -18,29 +70,37 @@ void ofApp::setup(){
 }
 
 //--------------------------------------------------------------
-void ofApp::setupRear(){
-
-    rearMovie.load("movies/newRear.mp4");
-    rearMovie.play();
-
-}
-
-//--------------------------------------------------------------
 void ofApp::update(){
 
     frontMovie.update();
-    rearMovie.update();
 
-    int currentFrame = frontMovie.getCurrentFrame();
+    currentFrame = frontMovie.getCurrentFrame();
+    currentTime = ofGetElapsedTimeMillis();
 
-    if (currentFrame == frameNumber) {
-        frontMovie.setPaused(true);
-    } else if (currentFrame < frameNumber) {
-        frontMovie.nextFrame();
-    } else if (currentFrame > frameNumber) {
-        frontMovie.previousFrame();
+    if (currentFrame < 0 || currentFrame > 20000){
+        cout << "bad frame" << endl;
+//        frontMovie.close();
+//        frontMovie.load("movies/" + frontFile);
+//        frontMovie.play();
+//        frontMovie.setPaused(true);
+        frontMovie.setFrame(3);
+        currentFrame = frontMovie.getCurrentFrame();
+        cout << "reloaded now with currentFrame: " << currentFrame << endl;
     }
+    
+    //cout << endl << "Frame: " << currentFrame << endl;
 
+    if(!frontMovie.isLoaded()){
+        frontMovie.load("movies/" + frontFile);
+        frontMovie.play();
+        frontMovie.setPaused(true);
+        frontMovie.setPosition(0);
+        
+        numFrames = frontMovie.getTotalNumFrames();
+        
+        cout << "RELOADED" << endl;
+    }
+    
     for(int i = 0; i < server.getLastID(); i++) // getLastID is UID of all clients
     {
         if( server.isClientConnected(i) ) { // check and see if it's still around
@@ -58,30 +118,114 @@ void ofApp::update(){
                 cout << (int)recv[c] << " ";
             }
 
-            uint32_t value = (uint8_t)recv[13];
-            value <<= 8;
-            value += (uint8_t)recv[14];
-            value <<= 8;
-            value += (uint8_t)recv[15];
-            value <<= 8;
-            value += (uint8_t)recv[16];
+            uint32_t cueNum = (uint8_t)recv[13];
+            cueNum <<= 8;
+            cueNum += (uint8_t)recv[14];
+            cueNum <<= 8;
+            cueNum += (uint8_t)recv[15];
+            cueNum <<= 8;
+            cueNum += (uint8_t)recv[16];
 
             cout << '\n';
-            cout << "BYTE VALUE: " << value << '\n';
+            cout << "BYTE VALUE: " << (int)cueNum << '\n';
             float floatValue;
-            value = (float)value;
-            floatValue = *((float*)&value);
-            cout << "FLOAT VALUE: " << floatValue << '\n';
+            cueNum = (float)cueNum;
+            floatValue = *((float*)&cueNum);
+            cout << "CUE VALUE: " << cueNum << '\n';
+            cout << '\n';
 
-            float ratio = ofMap(floatValue, 0, 1000, 0, numFrames);
+//            if(prevCue == 33 && cueNum == 1){
+//                frontMovie.setFrame(0);
+//            }
+//            
+//            if(prevCue != cueNum)
+//            {
+//                
+//                prevCue = cueNum;
+//                prevTarget = targetFrame;
+//                
+//                ofxOscMessage m;
+//                m.setAddress("/vid");
+//                m.addIntArg(triggerVids[cueNum]);
+//                
+//                sender.sendMessage(m);
+//            }
+            // Ezer's test
+            char recvByte[sizeof(float)];
 
-            frameNumber = (int)ratio;
+            recvByte[0] = recv[16];
+            recvByte[1] = recv[15];
+            recvByte[2] = recv[14];
+            recvByte[3] = recv[13];
+            
+            memcpy(&floatValue, recvByte, sizeof floatValue);
+            
+            cueNum = (int)floatValue;
+            
+            cout << "floatValue: " << floatValue << " cueNum: " << cueNum << endl;
 
-            char res[] = {0,1,0,0,0,6,0,16,0,0,0,10};
+            if(cueNum >= 0 && cueNum <= 34)
+            {
+                if(prevCue != cueNum)
+                {
+                    if((prevCue == 34) || cueNum == 0){
+    //                    frontMovie.setFrame(0);
+                        frontMovie.setPosition(0);
+                        prevTarget = 0;
+                        targetFrame = 0;
+                        currentFrame = frontMovie.getCurrentFrame();
+                        
+                        cout << "RESETTING RESETTING RESETTING" << endl;
+                    }
+                    
+                    prevCue = cueNum;
+                    prevTarget = targetFrame;
+                    
+                    if (cueNum != 0) {
+                        int cueFrame = cues.find(cueNum)->second;
+                        if (cueFrame >= 0) {
+                            targetFrame = cueFrame;
+                            currentInterval = timeIntervals[cueNum];
+                            if(targetFrame - prevTarget > 0)
+                            {
+                                frameTicker = currentInterval / (targetFrame - prevTarget);
+                            }
+                            else{
+                                frameTicker = 0;
+                            }
+                        }
+                    }
 
-            server.sendRawBytes(i, res, 12);
+                    // frame ticker var
+                    
+                    ofResetElapsedTimeCounter();
+                    currentTick = 0;
+                    
+                    ofxOscMessage m;
+                    m.setAddress("/vid");
+                    m.addIntArg(triggerVids[cueNum]);
+                    
+                    sender.sendMessage(m);
+                }
+            }
+            
+            else {
+                cout << " bad floatValue: " << floatValue << endl;
+                cueNum = prevCue;
+            }
+//            if (cueNum != 0) {
+//                int cueFrame = cues.find(cueNum)->second;
+//                if (cueFrame >= 0) {
+//                    targetFrame = cueFrame;
+//                    currentInterval = timeIntervals[cueNum];
+//                    if(targetFrame - prevTarget > 0)
+//                    {
+//                        frameTicker = (int)((float)currentInterval / (float)(targetFrame - prevTarget));
+//                    }
+//                }
+//            }
+            cout << "Target Frame: " << targetFrame << "\n\n";
 
-            memset(recv, 0, 64);
         }
     }
 }
@@ -89,19 +233,84 @@ void ofApp::update(){
 //--------------------------------------------------------------
 void ofApp::draw(){
 
-    frontMovie.draw(0,0, 950, 712);
+//    if (currentTime >= frameTicker && currentFrame < targetFrame) {
+//        frontMovie.nextFrame();
+////        ofResetElapsedTimeCounter();
+//    }
+    if(frameTicker != 0)
+    {
+        if (currentTick < ofGetElapsedTimeMillis() / frameTicker
+            && currentFrame < targetFrame)
+        {
+            frontMovie.nextFrame();
+            ++currentTick;
+        }
+    }
+    else{
+        if (currentFrame < targetFrame){
+            frontMovie.nextFrame();
+        }
+        
+    }
+  /*
+    if (currentFrame == targetFrame) {
+        frontMovie.setPaused(true);
+    } else if (currentFrame < targetFrame) {
+        frontMovie.nextFrame();
+    } else if (currentFrame > targetFrame) {
+        frontMovie.previousFrame();
+    }*/
 
-}
-
-//--------------------------------------------------------------
-void ofApp::drawRear(ofEventArgs &args){
-
-    rearMovie.draw(0,0, 950, 712);
+    
+    //frontMovie.setPosition(pos);
+    frontMovie.draw(0,0, movieWidth, movieHeight);
+    
+    if(debug)
+    {
+        string frame = ofToString(currentFrame);
+        ofDrawBitmapString("Frame: " + frame, 50, 50);
+        ofDrawBitmapString("Target: " + to_string(targetFrame), 50, 75);
+        ofDrawBitmapString("Previous Target: " + to_string(prevTarget), 50, 100);
+        ofDrawBitmapString("FrameRate: " + to_string(frameRate), 50, 150);
+        ofDrawBitmapString("Interval: " + to_string(currentInterval), 50, 200);
+        ofDrawBitmapString("frameTicker: " + to_string(frameTicker), 50, 250);
+        ofDrawBitmapString("currenTime: " + to_string(currentTime), 50, 300);
+        ofDrawBitmapString("current tick: " + to_string(currentTick), 50, 350);
+        
+        if (frameTicker != 0)
+        {
+            ofDrawBitmapString("target tick: " + to_string(ofGetElapsedTimeMillis() / frameTicker), 50, 400);
+        }
+        else {
+            ofDrawBitmapString("target tick: " + to_string(0), 50, 400);
+        }
+        
+        ofDrawBitmapString("current cue: " + to_string(prevCue), 50, 450);
+    }
+        
 }
 
 //--------------------------------------------------------------
 void ofApp::keyPressed(int key){
-
+    if(key == 'r'){
+        frontMovie.setFrame(targetFrame);
+    }
+    
+    else if(key == '-' || key == '_'){
+        --frameRate;
+        ofSetFrameRate(frameRate);
+    }
+    
+    else if(key == '=' || key == '+')
+    {
+        ++frameRate;
+        ofSetFrameRate(frameRate);
+    }
+    
+    else if (key == 'd' || key == 'D')
+    {
+        debug = !debug;
+    }
 }
 
 //--------------------------------------------------------------
@@ -152,5 +361,9 @@ void ofApp::gotMessage(ofMessage msg){
 //--------------------------------------------------------------
 void ofApp::dragEvent(ofDragInfo dragInfo){ 
 
+}
+
+void ofApp::exit(){
+    frontMovie.closeMovie();
 }
 

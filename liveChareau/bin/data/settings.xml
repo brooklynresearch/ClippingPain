@@ -1,51 +1,56 @@
 <films>
   <film id="1">
-    <filename>Film1.mp4</filename>
+    <filename>Film1.mov</filename>
     <trigger></trigger>
   </film>
 
   <film id="2">
-    <filename>Film2.mp4</filename>
+    <filename>Film2.mov</filename>
     <trigger></trigger>
   </film>
 
   <film id="3">
-    <filename>Film3.mp4</filename>
+    <filename>Film3.mov</filename>
     <trigger></trigger>
   </film>
 
   <film id="4">
-    <filename>Film4.mp4</filename>
+    <filename>Film_04.mp4</filename>
     <trigger></trigger>
   </film>
 
   <film id="5">
-    <filename>Film5.mp4</filename>
+    <filename>Film5.mov</filename>
     <trigger></trigger>
   </film>
 
   <film id="6">
-    <filename>Film6.mp4</filename>
+    <filename>Film_06.mp4</filename>
     <trigger></trigger>
   </film>
 
   <film id="7">
-    <filename>Film7.mp4</filename>
+    <filename>Film7.mov</filename>
     <trigger></trigger>
   </film>
 
   <film id="8">
-    <filename>Film8.mp4</filename>
+    <filename>Film8.mov</filename>
     <trigger></trigger>
   </film>
 
   <film id="9">
-    <filename>Film9.mp4</filename>
+    <filename>Film9.mov</filename>
     <trigger></trigger>
   </film>
 
   <film id="10">
-    <filename>Film10.mp4</filename>
+    <filename>Film_10.mp4</filename>
+    <trigger></trigger>
+  </film>
+
+  <film id="11">
+    <filename>Film_11.mp4</filename>
     <trigger></trigger>
   </film>
 </films>
