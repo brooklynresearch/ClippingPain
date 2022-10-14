@@ -1,6 +1,7 @@
 #pragma once
 
 #include "ofMain.h"
+#include "ofxOsc.h"
 
 class ofApp : public ofBaseApp{
 
@@ -24,14 +25,20 @@ class ofApp : public ofBaseApp{
 		void gotMessage(ofMessage msg);
 
     ofXml XML;
+    
+    int PORT;
+    ofxOscReceiver receiver;
 
-    string indexLeft = "1";
+    string indexLeft = "0";
     string currentLeft;
     string filenameLeft;
     ofVideoPlayer vplayerLeft;
-
     string indexRight = "2";
     string currentRight;
     string filenameRight;
     ofVideoPlayer vplayerRight;
+    
+    // 0 draws on the wall with closet and elevator
+    // 1 on opposite
+    vector<int> alternator {1,1,0,1,0,0,1,1,1,0,0};
 };
